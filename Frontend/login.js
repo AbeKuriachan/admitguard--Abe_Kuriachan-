@@ -82,7 +82,7 @@ async function handleLogin() {
     sessionStorage.setItem("user", JSON.stringify(data.user));
 
     showToast(`Welcome back, ${data.user.name || email}! 👋`);
-    setTimeout(() => { window.location.href = "/dashboard"; }, 1500);
+    setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
   } catch (err) {
     showToast(err.message, "error");
   } finally {
@@ -119,7 +119,7 @@ async function handleSignup() {
     sessionStorage.setItem("user", JSON.stringify(data.user));
 
     showToast(`Account created! Welcome, ${name}! 🎉`);
-    setTimeout(() => { window.location.href = "/dashboard"; }, 1500);
+    setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
   } catch (err) {
     showToast(err.message, "error");
   } finally {
