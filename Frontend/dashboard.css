@@ -292,7 +292,7 @@ body {
   text-align: center;
 }
 
-/* ── Modal ───────────────────────────────────────────────────────────────── */
+/* ── Modal & Scrolling Fixes ─────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.35);
@@ -305,16 +305,22 @@ body {
 .modal {
   background: white;
   border-radius: 20px;
-  width: 100%; max-width: 480px;
+  width: 100%; 
+  max-width: 480px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.18);
   animation: fadeUp 0.25s ease;
   overflow: hidden;
+  /* Flex layout to keep header/footer static while body scrolls */
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; 
 }
 
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 24px 28px 20px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
 
@@ -329,13 +335,19 @@ body {
 
 .modal-body {
   padding: 24px 28px;
-  display: flex; flex-direction: column; gap: 16px;
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px;
+  /* CRITICAL: Allows scrolling to reach toggle and JSON */
+  overflow-y: auto; 
+  flex: 1;
 }
 
 .modal-footer {
   display: flex; justify-content: flex-end; gap: 10px;
   padding: 16px 28px 24px;
   border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 /* ── Form fields ─────────────────────────────────────────────────────────── */
@@ -367,6 +379,130 @@ input.error {
 
 .field-error { font-size: 0.78rem; color: #e55; min-height: 14px; }
 
+/* ── Rules Config Section ────────────────────────────────────────────────── */
+.rules-section {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 4px;
+  flex-shrink: 0; /* Prevents section from being compressed */
+}
+
+.rules-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--input-bg);
+  border-bottom: 1.5px solid var(--border);
+}
+
+.rules-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rules-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rules-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rules-badge.default  { background: #e8f0fe; color: var(--primary); }
+.rules-badge.custom   { background: #fef3e2; color: #c17d0a; }
+
+/* Toggle switch */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.toggle {
+  width: 40px; height: 22px;
+  background: var(--primary);
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle.off { background: #c8cdd8; }
+
+.toggle-knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle.off .toggle-knob { transform: translateX(0); }
+.toggle:not(.off) .toggle-knob { transform: translateX(18px); }
+
+/* Rules preview and JSON */
+.rules-preview {
+  padding: 12px 16px;
+}
+
+.rules-preview-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.rules-json {
+  background: #f4f6fa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  color: #3a4055;
+  line-height: 1.5;
+  white-space: pre;
+  min-height: 60px;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.rules-textarea {
+  width: 100%;
+  background: #f4f6fa;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  color: #3a4055;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+.rules-textarea:focus { border-color: var(--primary); }
+.rules-textarea.error { border-color: #e55; }
+
 /* ── Toast ───────────────────────────────────────────────────────────────── */
 #toast {
   position: fixed; bottom: 28px; left: 50%;
@@ -380,13 +516,16 @@ input.error {
 #toast.success { background: #1e8c5a; }
 #toast.error-toast { background: #c0392b; }
 
-/* ── Spinner ─────────────────────────────────────────────────────────────── */
-.spinner {
-  width: 16px; height: 16px;
-  border: 2.5px solid rgba(255,255,255,0.4);
-  border-top-color: white; border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: inline-block; vertical-align: middle; margin-right: 6px;
+/* ── Custom Scrollbar ────────────────────────────────────────────────────── */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 
 /* ── Utilities ───────────────────────────────────────────────────────────── */

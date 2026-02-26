@@ -45,7 +45,7 @@
     </div>
 
     <!-- KPI STRIP -->
-    <div class="kpi-strip" id="kpiStrip">
+    <div class="kpi-strip">
       <div class="kpi-card">
         <span class="kpi-label">Total Batches</span>
         <span class="kpi-value" id="kpiTotal">—</span>
@@ -86,6 +86,8 @@
         </button>
       </div>
       <div class="modal-body">
+
+        <!-- Batch Fields -->
         <div class="field">
           <label for="batchName">Batch Name</label>
           <input type="text" id="batchName" placeholder="e.g. Batch 2026 – A"/>
@@ -106,6 +108,36 @@
           <input type="number" id="batchIntake" placeholder="e.g. 60" min="1"/>
           <span class="field-error" id="batchIntakeErr"></span>
         </div>
+
+        <!-- Rules Config Toggle -->
+        <div class="rules-section">
+          <div class="rules-header">
+            <div class="rules-header-left">
+              <span class="rules-label">Eligibility Rules</span>
+              <span class="rules-badge default" id="rulesBadge">Default</span>
+            </div>
+            <label class="toggle-wrap">
+              <span class="toggle-text" id="toggleText">Use Default Rules</span>
+              <div class="toggle" id="rulesToggle" onclick="toggleRules()">
+                <div class="toggle-knob"></div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Default rules preview (read-only) -->
+          <div id="defaultRulesPreview" class="rules-preview">
+            <div class="rules-preview-label">Preview (read-only)</div>
+            <pre id="defaultRulesJson" class="rules-json"></pre>
+          </div>
+
+          <!-- Custom rules editor (hidden by default) -->
+          <div id="customRulesEditor" class="hidden">
+            <div class="rules-preview-label">Paste your custom rules JSON below</div>
+            <textarea id="customRulesJson" class="rules-textarea" placeholder="Paste custom JSON rules config…" rows="10" spellcheck="false"></textarea>
+            <span class="field-error" id="customRulesErr"></span>
+          </div>
+        </div>
+
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -117,6 +149,7 @@
   <!-- TOAST -->
   <div id="toast"></div>
 
+  <script src="rules_default.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>

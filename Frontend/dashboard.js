@@ -7,7 +7,7 @@ const token = sessionStorage.getItem("access_token") || localStorage.getItem("ac
 if (!token) window.location.href = "login.html";
 
 const user = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "{}");
-document.getElementById("userName").textContent  = user.name  || "User";
+document.getElementById("userName").textContent   = user.name  || "User";
 document.getElementById("userAvatar").textContent = (user.name || "U")[0].toUpperCase();
 
 // ── Auth header ───────────────────────────────────────────────────────────────
@@ -53,7 +53,6 @@ async function loadBatches() {
   } catch (err) {
     document.getElementById("loadingState").innerHTML =
       `<p style="color:#e55">Failed to load batches. Is the server running?</p>`;
-    console.error(err);
   }
 }
 
@@ -65,11 +64,9 @@ function renderBatches(batches) {
 
   loading.classList.add("hidden");
 
-  // Update KPIs
-  document.getElementById("kpiTotal").textContent   = batches.length;
-  document.getElementById("kpiIntake").textContent  = batches.reduce((s, b) => s + (b.intake_size || 0), 0);
-  const uniquePrograms = new Set(batches.map(b => b.program)).size;
-  document.getElementById("kpiPrograms").textContent = uniquePrograms;
+  document.getElementById("kpiTotal").textContent    = batches.length;
+  document.getElementById("kpiIntake").textContent   = batches.reduce((s, b) => s + (b.intake_size || 0), 0);
+  document.getElementById("kpiPrograms").textContent = new Set(batches.map(b => b.program)).size;
 
   if (batches.length === 0) {
     grid.classList.add("hidden");
@@ -79,18 +76,24 @@ function renderBatches(batches) {
 
   empty.classList.add("hidden");
   grid.classList.remove("hidden");
-
-  // Clear existing cards (keep loading state node)
   grid.querySelectorAll(".batch-card").forEach(c => c.remove());
 
   batches.forEach((batch, i) => {
+    const hasCustomRules = batch.rules_config &&
+      JSON.stringify(batch.rules_config) !== JSON.stringify(DEFAULT_RULES_CONFIG);
+
     const card = document.createElement("div");
     card.className = "batch-card";
     card.style.animationDelay = `${i * 0.05}s`;
     card.innerHTML = `
       <div class="batch-card-header">
         <span class="batch-name">${escHtml(batch.name)}</span>
-        <span class="batch-badge">${escHtml(batch.program)}</span>
+        <div style="display:flex;gap:6px;flex-direction:column;align-items:flex-end">
+          <span class="batch-badge">${escHtml(batch.program)}</span>
+          ${hasCustomRules
+            ? `<span class="batch-badge" style="background:#fef3e2;color:#c17d0a">Custom Rules</span>`
+            : `<span class="batch-badge" style="background:#e8f0fe;color:#3b6ef5">Default Rules</span>`}
+        </div>
       </div>
       <div class="batch-meta">
         <div class="batch-meta-row">
@@ -111,7 +114,8 @@ function renderBatches(batches) {
 }
 
 function escHtml(str) {
-  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(str).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 function formatDate(dateStr) {
@@ -124,10 +128,56 @@ function viewBatch(id) {
   window.location.href = `batch.html?id=${id}`;
 }
 
+// ── Rules toggle ──────────────────────────────────────────────────────────────
+let useDefaultRules = true;
+
+function toggleRules() {
+  useDefaultRules = !useDefaultRules;
+
+  const toggle       = document.getElementById("rulesToggle");
+  const badge        = document.getElementById("rulesBadge");
+  const toggleText   = document.getElementById("toggleText");
+  const preview      = document.getElementById("defaultRulesPreview");
+  const editor       = document.getElementById("customRulesEditor");
+
+  if (useDefaultRules) {
+    toggle.classList.remove("off");
+    badge.textContent = "Default";
+    badge.className   = "rules-badge default";
+    toggleText.textContent = "Use Default Rules";
+    preview.classList.remove("hidden");
+    editor.classList.add("hidden");
+  } else {
+    toggle.classList.add("off");
+    badge.textContent = "Custom";
+    badge.className   = "rules-badge custom";
+    toggleText.textContent = "Use Custom Rules";
+    preview.classList.add("hidden");
+    editor.classList.remove("hidden");
+    // Pre-fill with default as starting point
+    if (!document.getElementById("customRulesJson").value) {
+      document.getElementById("customRulesJson").value =
+        JSON.stringify(DEFAULT_RULES_CONFIG, null, 2);
+    }
+  }
+}
+
 // ── Modal ─────────────────────────────────────────────────────────────────────
 function openModal() {
   clearModalErrors();
   clearModalFields();
+  // Reset toggle to default
+  useDefaultRules = true;
+  document.getElementById("rulesToggle").classList.remove("off");
+  document.getElementById("rulesBadge").textContent = "Default";
+  document.getElementById("rulesBadge").className   = "rules-badge default";
+  document.getElementById("toggleText").textContent = "Use Default Rules";
+  document.getElementById("defaultRulesPreview").classList.remove("hidden");
+  document.getElementById("customRulesEditor").classList.add("hidden");
+  // Show default JSON preview
+  document.getElementById("defaultRulesJson").textContent =
+    JSON.stringify(DEFAULT_RULES_CONFIG, null, 2);
+
   document.getElementById("modalOverlay").classList.remove("hidden");
 }
 
@@ -144,6 +194,7 @@ function clearModalFields() {
     document.getElementById(id).value = "";
     document.getElementById(id).classList.remove("error");
   });
+  document.getElementById("customRulesJson").value = "";
 }
 
 function setModalError(id, msg) {
@@ -153,21 +204,37 @@ function setModalError(id, msg) {
 
 function clearModalErrors() {
   ["batchName","batchProgram","batchStartDate","batchIntake"].forEach(id => setModalError(id, ""));
+  document.getElementById("customRulesErr").textContent = "";
+  document.getElementById("customRulesJson")?.classList.remove("error");
 }
 
 // ── Create Batch ──────────────────────────────────────────────────────────────
 async function handleCreateBatch() {
   clearModalErrors();
-  const name       = document.getElementById("batchName").value.trim();
-  const program    = document.getElementById("batchProgram").value.trim();
-  const start_date = document.getElementById("batchStartDate").value;
+  const name        = document.getElementById("batchName").value.trim();
+  const program     = document.getElementById("batchProgram").value.trim();
+  const start_date  = document.getElementById("batchStartDate").value;
   const intake_size = parseInt(document.getElementById("batchIntake").value);
   let valid = true;
 
-  if (!name)            { setModalError("batchName",      "Batch name is required.");   valid = false; }
-  if (!program)         { setModalError("batchProgram",   "Program is required.");      valid = false; }
-  if (!start_date)      { setModalError("batchStartDate", "Start date is required.");   valid = false; }
-  if (!intake_size || intake_size < 1) { setModalError("batchIntake", "Enter a valid intake size."); valid = false; }
+  if (!name)                          { setModalError("batchName",      "Batch name is required.");     valid = false; }
+  if (!program)                       { setModalError("batchProgram",   "Program is required.");        valid = false; }
+  if (!start_date)                    { setModalError("batchStartDate", "Start date is required.");     valid = false; }
+  if (!intake_size || intake_size < 1){ setModalError("batchIntake",    "Enter a valid intake size.");  valid = false; }
+
+  // Resolve rules config
+  let rules_config = DEFAULT_RULES_CONFIG;
+  if (!useDefaultRules) {
+    const raw = document.getElementById("customRulesJson").value.trim();
+    try {
+      rules_config = JSON.parse(raw);
+    } catch {
+      document.getElementById("customRulesErr").textContent = "Invalid JSON. Please check your rules config.";
+      document.getElementById("customRulesJson").classList.add("error");
+      valid = false;
+    }
+  }
+
   if (!valid) return;
 
   const btn = document.getElementById("createBtn");
@@ -178,7 +245,7 @@ async function handleCreateBatch() {
     const res  = await fetch(`${API_BASE}/api/batches`, {
       method:  "POST",
       headers: authHeaders(),
-      body:    JSON.stringify({ name, program, start_date, intake_size }),
+      body:    JSON.stringify({ name, program, start_date, intake_size, rules_config }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Failed to create batch.");

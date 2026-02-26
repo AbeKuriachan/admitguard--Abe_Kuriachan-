@@ -11,8 +11,8 @@ from app.core.security import decode_access_token
 from app.models.batch import create_batch, get_all_batches, get_batch_by_id
 from app.schemas.batch_schemas import BatchCreate, BatchOut
 
-router  = APIRouter(prefix="/batches", tags=["Batches"])
-bearer  = HTTPBearer()
+router = APIRouter(prefix="/batches", tags=["Batches"])
+bearer = HTTPBearer()
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer)) -> dict:
@@ -31,6 +31,7 @@ def create(body: BatchCreate, user: dict = Depends(get_current_user)):
         start_date=body.start_date,
         intake_size=body.intake_size,
         created_by=user["sub"],
+        rules_config=body.rules_config,  # None → default applied in model
     )
     return BatchOut(**batch)
 
