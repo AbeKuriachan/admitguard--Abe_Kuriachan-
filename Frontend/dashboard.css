@@ -25,6 +25,10 @@ label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
 #step2 p { margin-bottom: 12px; font-size: 0.9rem; color: var(--text); }
 .rule-item { margin-bottom: 14px; }
 .rule-item label { font-weight: 500; }
+.rule-fields { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.field-inline { display: flex; flex-direction: column; flex: 1 1 150px; }
+.field-inline label { font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+.field-inline input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: var(--input-bg); color: var(--text); }
 .rule-json { width: 100%; font-family: monospace; font-size: 0.85rem; padding: 8px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; background: var(--input-bg); color: var(--text); }
 .rule-json:disabled { opacity: 0.6; }
 input[type="text"],

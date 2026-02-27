@@ -174,47 +174,78 @@ function goBack() {
 function renderRulesWizard() {
   const container = document.getElementById("rulesWizard");
   container.innerHTML = "";
-  Object.entries(DEFAULT_RULES_CONFIG).forEach(([key, cfg]) => {
-    const item = document.createElement("div");
-    item.className = "rule-item";
-    const labelText = cfg.label || key;
-    item.innerHTML = `
+  // only render controls for soft rules (strict ones stay default and hidden)
+  Object.entries(DEFAULT_RULES_CONFIG)
+    .filter(([,cfg]) => cfg.type === "soft")
+    .forEach(([key, cfg]) => {
+      const item = document.createElement("div");
+      item.className = "rule-item";
+      const labelText = cfg.label || key;
+
+      // create input fields for all properties except type/label
+      const fields = Object.entries(cfg)
+        .filter(([k]) => !["type", "label"].includes(k))
+        .map(([k,v]) => {
+          let inputType = "text";
+          let value = v;
+          if (typeof v === "number") inputType = "number";
+          if (Array.isArray(v)) value = v.join(",");
+          return `<div class="field-inline"><label>${k.replace(/_/g,' ')}</label><input type="${inputType}" class="rule-input" data-key="${key}" data-prop="${k}" value="${value}" disabled></div>`;
+        }).join("");
+
+      item.innerHTML = `
       <label>
         <input type="checkbox" class="rule-default-toggle" data-key="${key}" checked>
         Keep default for "${labelText}"
       </label>
-      <textarea class="rule-json" data-key="${key}" rows="3" disabled>${JSON.stringify(cfg,null,2)}</textarea>
+      <div class="rule-fields">
+        ${fields}
+      </div>
     `;
-    container.appendChild(item);
 
-    const checkbox = item.querySelector(".rule-default-toggle");
-    const textarea = item.querySelector(".rule-json");
-    checkbox.addEventListener("change", () => {
-      textarea.disabled = checkbox.checked;
-      if (checkbox.checked) {
-        textarea.value = JSON.stringify(DEFAULT_RULES_CONFIG[key], null, 2);
-      }
+      container.appendChild(item);
+
+      const checkbox = item.querySelector(".rule-default-toggle");
+      const inputs = item.querySelectorAll(".rule-input");
+      checkbox.addEventListener("change", () => {
+        inputs.forEach(i => i.disabled = checkbox.checked);
+        if (checkbox.checked) {
+          inputs.forEach(i => {
+            const prop = i.getAttribute("data-prop");
+            let val = DEFAULT_RULES_CONFIG[key][prop];
+            if (Array.isArray(val)) val = val.join(",");
+            i.value = val;
+          });
+        }
+      });
     });
-  });
 }
 
 async function handleSubmitRules() {
   // collect rules configuration from wizard
-  const rules_config = {};
+  // start with full default set so strict rules are always included
+  const rules_config = { ...DEFAULT_RULES_CONFIG };
   let errorMsg = "";
   document.getElementById("wizardErr").textContent = "";
   document.querySelectorAll(".rule-item").forEach(item => {
     const key = item.querySelector(".rule-default-toggle").getAttribute("data-key");
     const checkbox = item.querySelector(".rule-default-toggle");
-    const textarea = item.querySelector(".rule-json");
     if (checkbox.checked) {
-      rules_config[key] = DEFAULT_RULES_CONFIG[key];
+      // leave default in place
     } else {
-      try {
-        rules_config[key] = JSON.parse(textarea.value);
-      } catch (e) {
-        errorMsg = `Invalid JSON for module ${key}.`;
-      }
+      // this will only be soft types because only they are rendered
+      const defaultCfg = DEFAULT_RULES_CONFIG[key];
+      const newCfg = { ...defaultCfg };
+      item.querySelectorAll(".rule-input").forEach(i => {
+        const prop = i.getAttribute("data-prop");
+        let val = i.value;
+        if (i.type === "number") val = Number(val);
+        if (prop && typeof val === "string" && val.includes(",")) {
+          val = val.split(",").map(s => s.trim());
+        }
+        newCfg[prop] = val;
+      });
+      rules_config[key] = newCfg;
     }
   });
   if (errorMsg) {
