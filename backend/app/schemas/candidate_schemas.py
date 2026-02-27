@@ -32,3 +32,7 @@ class CandidateOut(BaseModel):
     data:               Dict[str, Any]  = Field(default_factory=dict)
     created_at:         Optional[str]   = None
     updated_at:         Optional[str]   = None
+
+class ReviewRequest(BaseModel):
+    review_status: str = Field(..., pattern="^(accepted|rejected)$")
+    review_note:   Optional[str] = None

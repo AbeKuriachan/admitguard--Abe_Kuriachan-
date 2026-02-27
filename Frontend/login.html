@@ -17,15 +17,10 @@
 
 <div class="card-wrap">
   <div class="card">
-    <p class="card-subtitle">Please enter your details</p>
-    <h1 class="card-title" id="cardTitle">Welcome back</h1>
+    <p class="card-subtitle">Sign in to your account</p>
+    <h1 class="card-title">Welcome back</h1>
 
-    <div class="tabs">
-      <div class="tab active" id="tabLogin"  onclick="switchTab('login')">Log in</div>
-      <div class="tab"        id="tabSignup" onclick="switchTab('signup')">Sign up</div>
-    </div>
-
-    <!-- LOGIN -->
+    <!-- LOGIN ONLY -->
     <div id="loginForm" class="form">
       <div class="field">
         <label for="loginEmail">Email address</label>
@@ -38,28 +33,6 @@
         <span class="field-error" id="loginPassErr"></span>
       </div>
       <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Sign in</button>
-      <p class="switch">Don't have an account? <a onclick="switchTab('signup')">Sign up</a></p>
-    </div>
-
-    <!-- SIGNUP -->
-    <div id="signupForm" class="form hidden">
-      <div class="field">
-        <label for="signupName">Full name</label>
-        <input type="text" id="signupName" placeholder="Jane Doe" autocomplete="name"/>
-        <span class="field-error" id="signupNameErr"></span>
-      </div>
-      <div class="field">
-        <label for="signupEmail">Email address</label>
-        <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email"/>
-        <span class="field-error" id="signupEmailErr"></span>
-      </div>
-      <div class="field">
-        <label for="signupPassword">Password</label>
-        <input type="password" id="signupPassword" placeholder="Min. 8 characters" autocomplete="new-password"/>
-        <span class="field-error" id="signupPassErr"></span>
-      </div>
-      <button class="btn-primary" id="signupBtn" onclick="handleSignup()">Create account</button>
-      <p class="switch">Already have an account? <a onclick="switchTab('login')">Log in</a></p>
     </div>
 
   </div>

@@ -16,7 +16,11 @@
       <img src="logo.jpg" alt="AdmitGuard" width="30" height="30" style="border-radius:7px;">
       <span class="nav-brand">AdmitGuard</span>
     </div>
-    <div class="nav-right">
+    <div class="nav-right" style="display:flex;align-items:center;gap:12px;">
+      <button class="btn-admin hidden" id="createUserBtn" onclick="openCreateUserModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create User
+      </button>
       <div class="user-menu" id="userMenu" onclick="toggleUserDropdown()">
         <div class="avatar" id="userAvatar">A</div>
         <span class="user-name" id="userName">User</span>
@@ -30,6 +34,48 @@
       </div>
     </div>
   </nav>
+
+  <!-- CREATE USER MODAL (admin only) -->
+  <div class="modal-overlay hidden" id="createUserModal" onclick="handleUserModalOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Create New User</h2>
+        <button class="modal-close" onclick="closeCreateUserModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="newUserName">Full Name</label>
+          <input type="text" id="newUserName" placeholder="e.g. Priya Sharma"/>
+          <span class="field-error" id="newUserNameErr"></span>
+        </div>
+        <div class="field">
+          <label for="newUserEmail">Email</label>
+          <input type="email" id="newUserEmail" placeholder="e.g. priya@example.com"/>
+          <span class="field-error" id="newUserEmailErr"></span>
+        </div>
+        <div class="field">
+          <label for="newUserPassword">Password</label>
+          <input type="password" id="newUserPassword" placeholder="Min. 8 characters"/>
+          <span class="field-error" id="newUserPasswordErr"></span>
+        </div>
+        <div class="field">
+          <label for="newUserRole">Role</label>
+          <select id="newUserRole">
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
+          <span class="field-error" id="newUserRoleErr"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
+        <button class="btn-primary" id="createUserBtn" onclick="handleCreateUser()">Create User</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MAIN -->
   <main class="main">

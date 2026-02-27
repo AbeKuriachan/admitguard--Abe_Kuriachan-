@@ -42,19 +42,37 @@
 
     <!-- BATCH SUMMARY -->
     <div class="batch-summary" id="batchSummary">
-      <div class="summary-loading">
-        <div class="spinner-lg"></div>
+      <div class="summary-loading"><div class="spinner-lg"></div></div>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip" id="kpiStrip" style="display:none">
+      <div class="kpi-card">
+        <span class="kpi-label">Total Students</span>
+        <span class="kpi-value" id="kpiTotal">0</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Offer Sent</span>
+        <span class="kpi-value kpi-green" id="kpiOffer">0</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Pending Review</span>
+        <span class="kpi-value kpi-amber" id="kpiPending">0</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Flagged</span>
+        <span class="kpi-value kpi-red" id="kpiFlagged">0</span>
       </div>
     </div>
 
-    <!-- STUDENT SECTION HEADER -->
+    <!-- SECTION HEADER -->
     <div class="section-header">
       <div>
         <h2 class="section-title">Students</h2>
         <p class="section-sub" id="studentCount">Loading…</p>
       </div>
       <div class="section-actions">
-        <button class="btn-secondary" id="csvBtn" onclick="downloadCSV()">
+        <button class="btn-secondary" onclick="downloadCSV()">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download CSV
         </button>
@@ -65,29 +83,29 @@
       </div>
     </div>
 
-    <!-- STUDENT TABLE -->
+    <!-- TABLE -->
     <div class="table-wrap">
       <div class="table-loading" id="tableLoading">
         <div class="spinner-lg"></div>
         <p>Loading students…</p>
       </div>
-
       <table class="student-table hidden" id="studentTable">
         <thead>
           <tr>
             <th>#</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Interview Status</th>
+            <th>Interview</th>
             <th>Test Score</th>
             <th>Offer Letter</th>
             <th>Exceptions</th>
-            <th>Action</th>
+            <th>Flag</th>
+            <th>Review Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="studentTableBody"></tbody>
       </table>
-
       <div class="empty-table hidden" id="emptyTable">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c0c8d8" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <p>No students yet. Click <strong>Add Student</strong> to get started.</p>
@@ -95,6 +113,30 @@
     </div>
 
   </main>
+
+  <!-- REVIEW MODAL -->
+  <div class="modal-overlay hidden" id="reviewModal" onclick="handleReviewOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Review Candidate</h2>
+        <button class="modal-close" onclick="closeReviewModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="review-summary" id="reviewSummary"></div>
+        <div class="field" style="margin-top:16px;">
+          <label for="reviewNote">Review Note <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <textarea id="reviewNote" rows="3" placeholder="Add a note for this decision…" style="resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+        <button class="btn-reject" onclick="submitReview('rejected')">✕ Reject</button>
+        <button class="btn-accept" onclick="submitReview('accepted')">✓ Accept</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast"></div>
   <script src="rules_default.js"></script>

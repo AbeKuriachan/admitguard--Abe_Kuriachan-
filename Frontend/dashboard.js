@@ -271,3 +271,60 @@ document.addEventListener("keydown", (e) => {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadBatches();
+
+// ── Admin: show Create User button if role is admin ───────────────────────────
+if (user.role === "admin") {
+  document.getElementById("createUserBtn")?.classList.remove("hidden");
+}
+
+// ── Create User Modal ─────────────────────────────────────────────────────────
+function openCreateUserModal() {
+  ["newUserName","newUserEmail","newUserPassword"].forEach(id => {
+    document.getElementById(id).value = "";
+    document.getElementById(id).classList?.remove("error");
+  });
+  document.getElementById("newUserRole").value = "user";
+  ["newUserNameErr","newUserEmailErr","newUserPasswordErr","newUserRoleErr"]
+    .forEach(id => { document.getElementById(id).textContent = ""; });
+  document.getElementById("createUserModal").classList.remove("hidden");
+}
+
+function closeCreateUserModal() {
+  document.getElementById("createUserModal").classList.add("hidden");
+}
+
+function handleUserModalOverlay(e) {
+  if (e.target === document.getElementById("createUserModal")) closeCreateUserModal();
+}
+
+async function handleCreateUser() {
+  const name     = document.getElementById("newUserName").value.trim();
+  const email    = document.getElementById("newUserEmail").value.trim();
+  const password = document.getElementById("newUserPassword").value;
+  const role     = document.getElementById("newUserRole").value;
+  let valid = true;
+
+  if (!name)              { document.getElementById("newUserNameErr").textContent = "Name is required.";          valid = false; }
+  if (!email)             { document.getElementById("newUserEmailErr").textContent = "Email is required.";        valid = false; }
+  if (password.length < 8){ document.getElementById("newUserPasswordErr").textContent = "Min. 8 characters.";    valid = false; }
+  if (!valid) return;
+
+  const btn = document.getElementById("createUserBtn");
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/admin/users`, {
+      method:  "POST",
+      headers: authHeaders(),
+      body:    JSON.stringify({ name, email, password, role }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed to create user.");
+    closeCreateUserModal();
+    showToast(`User "${name}" (${role}) created successfully!`);
+  } catch (err) {
+    showToast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+}

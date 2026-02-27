@@ -18,16 +18,23 @@ def _users():
     return col
 
 
-def create_user(name: str, email: str, hashed_password: str) -> dict:
+def get_user_count() -> int:
+    """Return total number of users in the collection."""
+    return _users().count_documents({})
+
+
+def create_user(name: str, email: str, hashed_password: str, role: str = "user") -> dict:
     """
     Insert a new user. Returns the created document (with string id).
     Raises ValueError on duplicate email.
+    Role defaults to 'user'. Pass 'admin' for first user.
     """
     doc = {
         "name":       name,
         "email":      email,
         "password":   hashed_password,
         "provider":   "local",
+        "role":       role,
         "created_at": datetime.utcnow(),
     }
     try:
