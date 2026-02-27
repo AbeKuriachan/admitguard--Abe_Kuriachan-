@@ -134,61 +134,46 @@
       </div>
       <div class="modal-body">
 
-        <!-- Batch Fields -->
-        <div class="field">
-          <label for="batchName">Batch Name</label>
-          <input type="text" id="batchName" placeholder="e.g. Batch 2026 – A"/>
-          <span class="field-error" id="batchNameErr"></span>
-        </div>
-        <div class="field">
-          <label for="batchProgram">Program</label>
-          <input type="text" id="batchProgram" placeholder="e.g. B.Tech Computer Science"/>
-          <span class="field-error" id="batchProgramErr"></span>
-        </div>
-        <div class="field">
-          <label for="batchStartDate">Start Date</label>
-          <input type="date" id="batchStartDate"/>
-          <span class="field-error" id="batchStartDateErr"></span>
-        </div>
-        <div class="field">
-          <label for="batchIntake">Intake Size</label>
-          <input type="number" id="batchIntake" placeholder="e.g. 60" min="1"/>
-          <span class="field-error" id="batchIntakeErr"></span>
+        <!-- STEP 1: Batch details -->
+        <div id="step1">
+          <div class="field">
+            <label for="batchName">Batch Name</label>
+            <input type="text" id="batchName" placeholder="e.g. Batch 2026 – A"/>
+            <span class="field-error" id="batchNameErr"></span>
+          </div>
+          <div class="field">
+            <label for="batchProgram">Program</label>
+            <input type="text" id="batchProgram" placeholder="e.g. B.Tech Computer Science"/>
+            <span class="field-error" id="batchProgramErr"></span>
+          </div>
+          <div class="field">
+            <label for="batchStartDate">Start Date</label>
+            <input type="date" id="batchStartDate"/>
+            <span class="field-error" id="batchStartDateErr"></span>
+          </div>
+          <div class="field">
+            <label for="batchIntake">Intake Size</label>
+            <input type="number" id="batchIntake" placeholder="e.g. 60" min="1"/>
+            <span class="field-error" id="batchIntakeErr"></span>
+          </div>
         </div>
 
-        <!-- Rules Config Toggle -->
-        <div class="rules-section">
-          <div class="rules-header">
-            <div class="rules-header-left">
-              <span class="rules-label">Eligibility Rules</span>
-              <span class="rules-badge default" id="rulesBadge">Default</span>
-            </div>
-            <label class="toggle-wrap">
-              <span class="toggle-text" id="toggleText">Use Default Rules</span>
-              <div class="toggle" id="rulesToggle" onclick="toggleRules()">
-                <div class="toggle-knob"></div>
-              </div>
-            </label>
-          </div>
-
-          <!-- Default rules preview (read-only) -->
-          <div id="defaultRulesPreview" class="rules-preview">
-            <div class="rules-preview-label">Preview (read-only)</div>
-            <pre id="defaultRulesJson" class="rules-json"></pre>
-          </div>
-
-          <!-- Custom rules editor (hidden by default) -->
-          <div id="customRulesEditor" class="hidden">
-            <div class="rules-preview-label">Paste your custom rules JSON below</div>
-            <textarea id="customRulesJson" class="rules-textarea" placeholder="Paste custom JSON rules config…" rows="10" spellcheck="false"></textarea>
-            <span class="field-error" id="customRulesErr"></span>
-          </div>
+        <!-- STEP 2: Rules wizard (hidden initially) -->
+        <div id="step2" class="hidden">
+          <p>Modify eligibility rules category‑by‑category. Uncheck a box to edit that rule; leave checked to keep default values.</p>
+          <div id="rulesWizard"></div>
+          <span class="field-error" id="wizardErr"></span>
         </div>
 
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" id="footerStep1">
         <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn-primary" id="createBtn" onclick="handleCreateBatch()">Create Batch</button>
+        <button class="btn-primary" id="nextBtn" onclick="handleNext()">Next ➜</button>
+      </div>
+      <div class="modal-footer hidden" id="footerStep2">
+        <button class="btn-secondary" onclick="goBack()">← Back</button>
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" id="submitBtn" onclick="handleSubmitRules()">Submit</button>
       </div>
     </div>
   </div>

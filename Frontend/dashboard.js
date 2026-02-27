@@ -128,37 +128,130 @@ function viewBatch(id) {
   window.location.href = `batch.html?id=${id}`;
 }
 
-// ── Rules toggle ──────────────────────────────────────────────────────────────
-let useDefaultRules = true;
+// ── Wizard state and helpers ─────────────────────────────────────────────────
+let currentStep = 1;          // 1 = batch details, 2 = rule editor
+let tempBatchData = null;     // stored after step1 validation
 
-function toggleRules() {
-  useDefaultRules = !useDefaultRules;
+function showStep(step) {
+  currentStep = step;
+  document.getElementById("step1").classList.toggle("hidden", step !== 1);
+  document.getElementById("step2").classList.toggle("hidden", step !== 2);
+  document.getElementById("footerStep1").classList.toggle("hidden", step !== 1);
+  document.getElementById("footerStep2").classList.toggle("hidden", step !== 2);
+  if (step === 2) {
+    renderRulesWizard();
+  }
+}
 
-  const toggle       = document.getElementById("rulesToggle");
-  const badge        = document.getElementById("rulesBadge");
-  const toggleText   = document.getElementById("toggleText");
-  const preview      = document.getElementById("defaultRulesPreview");
-  const editor       = document.getElementById("customRulesEditor");
+function validateBatchFields() {
+  clearModalErrors();
+  const name        = document.getElementById("batchName").value.trim();
+  const program     = document.getElementById("batchProgram").value.trim();
+  const start_date  = document.getElementById("batchStartDate").value;
+  const intake_size = parseInt(document.getElementById("batchIntake").value);
+  let valid = true;
 
-  if (useDefaultRules) {
-    toggle.classList.remove("off");
-    badge.textContent = "Default";
-    badge.className   = "rules-badge default";
-    toggleText.textContent = "Use Default Rules";
-    preview.classList.remove("hidden");
-    editor.classList.add("hidden");
-  } else {
-    toggle.classList.add("off");
-    badge.textContent = "Custom";
-    badge.className   = "rules-badge custom";
-    toggleText.textContent = "Use Custom Rules";
-    preview.classList.add("hidden");
-    editor.classList.remove("hidden");
-    // Pre-fill with default as starting point
-    if (!document.getElementById("customRulesJson").value) {
-      document.getElementById("customRulesJson").value =
-        JSON.stringify(DEFAULT_RULES_CONFIG, null, 2);
+  if (!name)                          { setModalError("batchName",      "Batch name is required.");     valid = false; }
+  if (!program)                       { setModalError("batchProgram",   "Program is required.");        valid = false; }
+  if (!start_date)                    { setModalError("batchStartDate", "Start date is required.");     valid = false; }
+  if (!intake_size || intake_size < 1){ setModalError("batchIntake",    "Enter a valid intake size.");  valid = false; }
+
+  if (!valid) return null;
+  return { name, program, start_date, intake_size };
+}
+
+async function handleNext() {
+  const data = validateBatchFields();
+  if (!data) return;
+  tempBatchData = data;
+  showStep(2);
+}
+
+function goBack() {
+  showStep(1);
+}
+
+function renderRulesWizard() {
+  const container = document.getElementById("rulesWizard");
+  container.innerHTML = "";
+  Object.entries(DEFAULT_RULES_CONFIG).forEach(([key, cfg]) => {
+    const item = document.createElement("div");
+    item.className = "rule-item";
+    const labelText = cfg.label || key;
+    item.innerHTML = `
+      <label>
+        <input type="checkbox" class="rule-default-toggle" data-key="${key}" checked>
+        Keep default for "${labelText}"
+      </label>
+      <textarea class="rule-json" data-key="${key}" rows="3" disabled>${JSON.stringify(cfg,null,2)}</textarea>
+    `;
+    container.appendChild(item);
+
+    const checkbox = item.querySelector(".rule-default-toggle");
+    const textarea = item.querySelector(".rule-json");
+    checkbox.addEventListener("change", () => {
+      textarea.disabled = checkbox.checked;
+      if (checkbox.checked) {
+        textarea.value = JSON.stringify(DEFAULT_RULES_CONFIG[key], null, 2);
+      }
+    });
+  });
+}
+
+async function handleSubmitRules() {
+  // collect rules configuration from wizard
+  const rules_config = {};
+  let errorMsg = "";
+  document.getElementById("wizardErr").textContent = "";
+  document.querySelectorAll(".rule-item").forEach(item => {
+    const key = item.querySelector(".rule-default-toggle").getAttribute("data-key");
+    const checkbox = item.querySelector(".rule-default-toggle");
+    const textarea = item.querySelector(".rule-json");
+    if (checkbox.checked) {
+      rules_config[key] = DEFAULT_RULES_CONFIG[key];
+    } else {
+      try {
+        rules_config[key] = JSON.parse(textarea.value);
+      } catch (e) {
+        errorMsg = `Invalid JSON for module ${key}.`;
+      }
     }
+  });
+  if (errorMsg) {
+    document.getElementById("wizardErr").textContent = errorMsg;
+    return;
+  }
+
+  // decide if config is custom or default
+  const isSame = JSON.stringify(rules_config) === JSON.stringify(DEFAULT_RULES_CONFIG);
+  const finalConfig = isSame ? DEFAULT_RULES_CONFIG : rules_config;
+
+  // post to server
+  await postBatch(tempBatchData, finalConfig);
+}
+
+async function postBatch(batchData, rules_config) {
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span>Creating…`;
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/batches`, {
+      method:  "POST",
+      headers: authHeaders(),
+      body:    JSON.stringify({ ...batchData, rules_config }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed to create batch.");
+
+    closeModal();
+    showToast(`Batch "${batchData.name}" created! 🎉`);
+    loadBatches();
+  } catch (err) {
+    showToast(err.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `Submit`;
   }
 }
 
@@ -166,18 +259,11 @@ function toggleRules() {
 function openModal() {
   clearModalErrors();
   clearModalFields();
-  // Reset toggle to default
-  useDefaultRules = true;
-  document.getElementById("rulesToggle").classList.remove("off");
-  document.getElementById("rulesBadge").textContent = "Default";
-  document.getElementById("rulesBadge").className   = "rules-badge default";
-  document.getElementById("toggleText").textContent = "Use Default Rules";
-  document.getElementById("defaultRulesPreview").classList.remove("hidden");
-  document.getElementById("customRulesEditor").classList.add("hidden");
-  // Show default JSON preview
-  document.getElementById("defaultRulesJson").textContent =
-    JSON.stringify(DEFAULT_RULES_CONFIG, null, 2);
-
+  // reset wizard state
+  tempBatchData = null;
+  document.getElementById("wizardErr").textContent = "";
+  document.getElementById("rulesWizard").innerHTML = "";
+  showStep(1);
   document.getElementById("modalOverlay").classList.remove("hidden");
 }
 
@@ -191,10 +277,12 @@ function handleOverlayClick(e) {
 
 function clearModalFields() {
   ["batchName","batchProgram","batchStartDate","batchIntake"].forEach(id => {
-    document.getElementById(id).value = "";
-    document.getElementById(id).classList.remove("error");
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = "";
+      el.classList.remove("error");
+    }
   });
-  document.getElementById("customRulesJson").value = "";
 }
 
 function setModalError(id, msg) {
@@ -204,68 +292,15 @@ function setModalError(id, msg) {
 
 function clearModalErrors() {
   ["batchName","batchProgram","batchStartDate","batchIntake"].forEach(id => setModalError(id, ""));
-  document.getElementById("customRulesErr").textContent = "";
-  document.getElementById("customRulesJson")?.classList.remove("error");
 }
 
-// ── Create Batch ──────────────────────────────────────────────────────────────
-async function handleCreateBatch() {
-  clearModalErrors();
-  const name        = document.getElementById("batchName").value.trim();
-  const program     = document.getElementById("batchProgram").value.trim();
-  const start_date  = document.getElementById("batchStartDate").value;
-  const intake_size = parseInt(document.getElementById("batchIntake").value);
-  let valid = true;
-
-  if (!name)                          { setModalError("batchName",      "Batch name is required.");     valid = false; }
-  if (!program)                       { setModalError("batchProgram",   "Program is required.");        valid = false; }
-  if (!start_date)                    { setModalError("batchStartDate", "Start date is required.");     valid = false; }
-  if (!intake_size || intake_size < 1){ setModalError("batchIntake",    "Enter a valid intake size.");  valid = false; }
-
-  // Resolve rules config
-  let rules_config = DEFAULT_RULES_CONFIG;
-  if (!useDefaultRules) {
-    const raw = document.getElementById("customRulesJson").value.trim();
-    try {
-      rules_config = JSON.parse(raw);
-    } catch {
-      document.getElementById("customRulesErr").textContent = "Invalid JSON. Please check your rules config.";
-      document.getElementById("customRulesJson").classList.add("error");
-      valid = false;
-    }
-  }
-
-  if (!valid) return;
-
-  const btn = document.getElementById("createBtn");
-  btn.disabled = true;
-  btn.innerHTML = `<span class="spinner"></span>Creating…`;
-
-  try {
-    const res  = await fetch(`${API_BASE}/api/batches`, {
-      method:  "POST",
-      headers: authHeaders(),
-      body:    JSON.stringify({ name, program, start_date, intake_size, rules_config }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || "Failed to create batch.");
-
-    closeModal();
-    showToast(`Batch "${name}" created! 🎉`);
-    loadBatches();
-  } catch (err) {
-    showToast(err.message, "error");
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `Create Batch`;
-  }
-}
 
 // ── Keyboard shortcuts ────────────────────────────────────────────────────────
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeModal();
   if (e.key === "Enter" && !document.getElementById("modalOverlay").classList.contains("hidden")) {
-    handleCreateBatch();
+    if (currentStep === 1) handleNext();
+    else if (currentStep === 2) handleSubmitRules();
   }
 });
 

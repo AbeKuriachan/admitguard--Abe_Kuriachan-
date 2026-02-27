@@ -20,6 +20,13 @@
 /* ── Shared form styling (modals/other isolated forms) ───────────────────── */
 .field { display: flex; flex-direction: column; gap: 6px; }
 label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+
+/* Modal wizard steps */
+#step2 p { margin-bottom: 12px; font-size: 0.9rem; color: var(--text); }
+.rule-item { margin-bottom: 14px; }
+.rule-item label { font-weight: 500; }
+.rule-json { width: 100%; font-family: monospace; font-size: 0.85rem; padding: 8px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; background: var(--input-bg); color: var(--text); }
+.rule-json:disabled { opacity: 0.6; }
 input[type="text"],
 input[type="email"],
 input[type="password"],

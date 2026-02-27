@@ -20,6 +20,8 @@
   --warn: #d97706;
   --warn-bg: #fffbeb;
   --warn-border: #fcd34d;
+  --exception-bg: #fffbeb;
+  --exception-counter-bg: #fef3c7;
   --success: #059669;
 }
 
@@ -50,6 +52,13 @@ body {
   --border: #3a3e47;
   --input-bg: #2a2c33;
   --shadow: 0 2px 16px rgba(0,0,0,0.5);
+  /* tone down error/warning backgrounds for dark mode */
+  --error-bg: rgba(220,38,38,0.15);
+  --error-border: rgba(220,38,38,0.5);
+  --warn-bg: rgba(217,119,6,0.15);
+  --warn-border: rgba(217,119,6,0.5);
+  --exception-bg: rgba(217,119,6,0.1);
+  --exception-counter-bg: rgba(217,119,6,0.1);
 }
 
 /* ── Top Nav ─────────────────────────────────────────────────────────────── */
@@ -255,7 +264,7 @@ input.input-warn, select.input-warn {
 
 /* ── Exception zone ──────────────────────────────────────────────────────── */
 .exception-zone {
-  background: #fffbeb; border: 1.5px solid var(--warn-border);
+  background: var(--exception-bg); border: 1.5px solid var(--warn-border);
   border-radius: 10px; padding: 12px 14px;
   display: flex; flex-direction: column; gap: 8px;
 }
@@ -311,7 +320,7 @@ input.input-warn, select.input-warn {
   font-size: 0.875rem; font-weight: 600; color: var(--muted);
   background: var(--bg); padding: 6px 14px; border-radius: 20px;
 }
-.exc-counter.has-exceptions { color: var(--warn); background: #fef3c7; }
+.exc-counter.has-exceptions { color: var(--warn); background: var(--exception-counter-bg); }
 .exc-counter.flagged        { color: var(--error); background: #fee2e2; }
 
 .footer-right { display: flex; align-items: center; gap: 10px; }
