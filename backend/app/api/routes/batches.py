@@ -38,15 +38,15 @@ def create(body: BatchCreate, user: dict = Depends(get_current_user)):
 
 @router.get("", response_model=List[BatchOut])
 def list_batches(user: dict = Depends(get_current_user)):
-    """Get all batches for the current user."""
-    batches = get_all_batches(created_by=user["sub"])
+    """Get all batches (shared workspace access)."""
+    batches = get_all_batches()
     return [BatchOut(**b) for b in batches]
 
 
 @router.get("/{batch_id}", response_model=BatchOut)
 def get_batch(batch_id: str, user: dict = Depends(get_current_user)):
-    """Get a single batch by ID."""
+    """Get a single batch by ID (shared workspace access)."""
     batch = get_batch_by_id(batch_id)
-    if not batch or batch["created_by"] != user["sub"]:
+    if not batch:
         raise HTTPException(status_code=404, detail="Batch not found.")
     return BatchOut(**batch)
