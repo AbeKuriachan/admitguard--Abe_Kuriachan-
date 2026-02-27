@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AdmitGuard – Batch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="batch.css">
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <img src="logo.jpg" alt="AdmitGuard" width="30" height="30" style="border-radius:7px;">
+      <span class="nav-brand">AdmitGuard</span>
+    </div>
+    <div class="nav-right">
+      <div class="user-menu" id="userMenu" onclick="toggleUserDropdown()">
+        <div class="avatar" id="userAvatar">A</div>
+        <span class="user-name" id="userName">User</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="dropdown" id="userDropdown">
+          <div class="dropdown-item" onclick="handleLogout()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a href="dashboard.html" class="breadcrumb-link">Dashboard</a>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span id="breadcrumbBatch">—</span>
+    </div>
+
+    <!-- BATCH SUMMARY -->
+    <div class="batch-summary" id="batchSummary">
+      <div class="summary-loading">
+        <div class="spinner-lg"></div>
+      </div>
+    </div>
+
+    <!-- STUDENT SECTION HEADER -->
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Students</h2>
+        <p class="section-sub" id="studentCount">Loading…</p>
+      </div>
+      <div class="section-actions">
+        <button class="btn-secondary" id="csvBtn" onclick="downloadCSV()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download CSV
+        </button>
+        <button class="btn-primary" onclick="addStudent()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Student
+        </button>
+      </div>
+    </div>
+
+    <!-- STUDENT TABLE -->
+    <div class="table-wrap">
+      <div class="table-loading" id="tableLoading">
+        <div class="spinner-lg"></div>
+        <p>Loading students…</p>
+      </div>
+
+      <table class="student-table hidden" id="studentTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Interview Status</th>
+            <th>Test Score</th>
+            <th>Offer Letter</th>
+            <th>Exceptions</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+      </table>
+
+      <div class="empty-table hidden" id="emptyTable">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c0c8d8" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <p>No students yet. Click <strong>Add Student</strong> to get started.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toast"></div>
+  <script src="rules_default.js"></script>
+  <script src="batch.js"></script>
+</body>
+</html>
