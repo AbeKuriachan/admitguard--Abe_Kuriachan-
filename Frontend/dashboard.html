@@ -13,10 +13,11 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="nav-left">
-      <img src="logo.jpg" alt="AdmitGuard" width="30" height="30" style="border-radius:7px;">
+      <img src="logo.svg" alt="AdmitGuard" width="30" height="30" style="border-radius:7px;">
       <span class="nav-brand">AdmitGuard</span>
     </div>
     <div class="nav-right" style="display:flex;align-items:center;gap:12px;">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
       <button class="btn-admin hidden" id="createUserBtn" onclick="openCreateUserModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create User
@@ -195,6 +196,7 @@
   <!-- TOAST -->
   <div id="toast"></div>
 
+  <script src="theme.js"></script>
   <script src="rules_default.js"></script>
   <script src="dashboard.js"></script>
 </body>

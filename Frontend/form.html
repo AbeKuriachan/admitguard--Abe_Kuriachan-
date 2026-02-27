@@ -13,10 +13,11 @@
   <!-- TOP NAV -->
   <nav class="topnav">
     <div class="nav-left">
-      <img src="logo.jpg" alt="AdmitGuard" width="30" height="30" style="border-radius:7px;">
+      <img src="logo.svg" alt="AdmitGuard" width="30" height="30" style="border-radius:7px;">
       <span class="nav-brand">AdmitGuard</span>
     </div>
     <div class="nav-right">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
       <div class="user-menu" id="userMenu" onclick="toggleUserDropdown()">
         <div class="avatar" id="userAvatar">A</div>
         <span class="user-name" id="userName">User</span>
@@ -390,6 +391,7 @@
 
   <div id="toast"></div>
   <script src="rules_default.js"></script>
+  <script src="theme.js"></script>
   <script src="form.js"></script>
 </body>
 </html>

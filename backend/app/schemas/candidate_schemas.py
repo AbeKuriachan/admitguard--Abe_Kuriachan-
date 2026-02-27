@@ -29,6 +29,9 @@ class CandidateOut(BaseModel):
     offer_letter_sent:  Optional[bool]  = None
     exception_count:    int             = 0
     flagged:            bool            = False
+    review_status:      Optional[str]   = None
+    reviewed_by:        Optional[str]   = None
+    review_note:        Optional[str]   = None
     data:               Dict[str, Any]  = Field(default_factory=dict)
     created_at:         Optional[str]   = None
     updated_at:         Optional[str]   = None

@@ -1,0 +1,35 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background shield shape -->
+  <path d="M250 50 L420 150 L420 300 Q420 380 250 450 Q80 380 80 300 L80 150 L250 50" 
+        fill="#2C3E50" opacity="0.9"/>
+  
+  <!-- Inner shield for depth -->
+  <path d="M250 80 L400 170 L400 300 Q400 360 250 420 Q100 360 100 300 L100 170 L250 80" 
+        fill="#34495E"/>
+  
+  <!-- Checkmark background circle -->
+  <circle cx="250" cy="250" r="120" fill="#27AE60" opacity="0.9"/>
+  
+  <!-- Graduation cap base -->
+  <rect x="200" y="220" width="100" height="40" rx="10" fill="#F1C40F"/>
+  <rect x="190" y="190" width="120" height="40" rx="10" fill="#F1C40F"/>
+  
+  <!-- Graduation cap tassel -->
+  <circle cx="250" cy="180" r="15" fill="#E67E22"/>
+  <path d="M250 180 L250 140" stroke="#E67E22" stroke-width="4"/>
+  <circle cx="250" cy="135" r="8" fill="#E67E22"/>
+  
+  <!-- Large checkmark -->
+  <path d="M190 260 L240 310 L340 200" stroke="white" stroke-width="25" 
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Verification shield icon -->
+  <path d="M320 130 L370 160 L370 230" stroke="#F1C40F" stroke-width="12" 
+        fill="none" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- App name text -->
+  <text x="250" y="470" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="48" font-weight="bold" fill="#2C3E50">ADMITGUARD</text>
+  <text x="250" y="520" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="24" fill="#7F8C8D" letter-spacing="2">VERIFY WITH CONFIDENCE</text>
+</svg>

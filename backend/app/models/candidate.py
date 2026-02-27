@@ -40,6 +40,9 @@ def create_candidate(
         "offer_letter_sent": offer_letter_sent,
         "exception_count":   exception_count,
         "flagged":           flagged,
+        "review_status":     None,
+        "reviewed_by":       None,
+        "review_note":       None,
         "data":              data,   # stores ALL form fields
         "created_at":        now,
         "updated_at":        now,

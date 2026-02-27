@@ -21,6 +21,30 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* theme toggle button */
+.theme-toggle {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* dark mode variables */
+[data-theme="dark"] {
+  --bg: #1a1d23;
+  --card: #282c34;          /* lighten card for better contrast */
+  --primary: #6395fa;
+  --primary-hover: #3b6ef5;
+  --text: #eef0f3;
+  --muted: #c0c4cc;         /* higher contrast for secondary text */
+  --border: #3f4147;
+  --input-bg: #2a2c33;
+  --shadow: 0 4px 32px rgba(0,0,0,0.3);
 }
 
 /* ── Nav ─────────────────────────────────────────────────────────────────── */
@@ -90,7 +114,7 @@ nav {
 }
 
 .tab.active {
-  background: white; color: var(--text);
+  background: var(--card); color: var(--text);
   box-shadow: 0 1px 6px rgba(0,0,0,0.1);
 }
 
